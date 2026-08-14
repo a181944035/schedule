@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<meta name="theme-color" content="#c5a059" />
+<meta name="theme-color" content="#2563eb" />
 <link rel="manifest" href="./manifest.webmanifest" />
 <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-<title>东叔日程 · 每日每周规划</title>
+<title>东叔日程 · 每日每周每月规划</title>
 <style>
   :root{
-    --bg:#fbf7ef; --card:#ffffff; --card2:#f6f0e4; --text:#2b2620; --muted:#8a8073;
-    --line:#ece3d4; --gold:#c5a059; --gold-d:#a9863f; --shadow:0 6px 22px rgba(120,95,40,.10);
-    --blue:#3b82f6; --green:#22a06b; --purple:#8b5cf6; --orange:#f08c3a; --red:#e2554f; --gray:#9aa0a6;
-    --ok:#22a06b;
+    --bg:#f4f8ff; --card:#ffffff; --card2:#eaf1ff; --text:#16233b; --muted:#64748b;
+    --line:#e2e9f5; --blue:#2563eb; --blue-d:#1d4ed8; --shadow:0 6px 22px rgba(37,99,235,.10);
+    --green:#16a34a; --purple:#7c3aed; --orange:#ea580c; --red:#dc2626; --gray:#94a3b8;
+    --ok:#16a34a; --warn:#ea580c;
   }
-  @media (prefers-color-scheme: dark){ :root{} }
   body.dark{
-    --bg:#16140f; --card:#221f18; --card2:#2c291f; --text:#f1ead9; --muted:#a99e89;
-    --line:#3a352a; --shadow:0 6px 22px rgba(0,0,0,.4);
+    --bg:#0e1726; --card:#172033; --card2:#1f2c44; --text:#e7eefb; --muted:#94a3b8;
+    --line:#2a3850; --shadow:0 6px 22px rgba(0,0,0,.45);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
@@ -27,24 +26,33 @@
     font-size:15px; line-height:1.5; min-height:100vh;
     padding-bottom:env(safe-area-inset-bottom);
   }
-  .wrap{max-width:760px;margin:0 auto;padding:0 14px 90px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 14px 96px}
   header{
-    position:sticky;top:0;z-index:20;background:linear-gradient(var(--bg),var(--bg) 70%,transparent);
-    padding:14px 0 10px;backdrop-filter:blur(6px)
+    position:sticky;top:0;z-index:20;background:linear-gradient(var(--bg),var(--bg) 72%,transparent);
+    padding:14px 0 8px;backdrop-filter:blur(8px)
   }
   .top{display:flex;align-items:center;gap:10px}
-  .logo{width:38px;height:38px;border-radius:11px;background:var(--gold);display:grid;place-items:center;
-    color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow);flex:none}
+  .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-d));
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:19px;box-shadow:var(--shadow);flex:none}
   .title{flex:1;min-width:0}
   .title h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.5px}
   .title .date{font-size:12px;color:var(--muted);margin-top:1px}
-  .icon-btn{width:38px;height:38px;border:none;border-radius:11px;background:var(--card);color:var(--text);
+  .icon-btn{width:40px;height:40px;border:none;border-radius:12px;background:var(--card);color:var(--text);
     display:grid;place-items:center;font-size:18px;box-shadow:var(--shadow);cursor:pointer;flex:none}
   .icon-btn:active{transform:scale(.94)}
+  .icon-btn.hide{display:none}
   .tabs{display:flex;gap:8px;margin-top:12px;background:var(--card2);padding:4px;border-radius:13px}
   .tab{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:14px;
     padding:9px 0;border-radius:10px;cursor:pointer}
-  .tab.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+  .tab.on{background:var(--card);color:var(--blue);box-shadow:var(--shadow)}
+
+  .status{margin-top:9px;display:flex;flex-direction:column;gap:4px}
+  .sync{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .sync b{color:var(--text);font-weight:700}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--gray);flex:none}
+  .dot.ok{background:var(--ok)} .dot.off{background:var(--orange)} .dot.err{background:var(--red)}
+  .focus-chip{border:none;background:var(--card2);color:var(--blue-d);font-size:12px;font-weight:700;
+    padding:5px 10px;border-radius:20px;cursor:pointer;align-self:flex-start}
 
   .stat{display:flex;gap:10px;margin:14px 0}
   .stat .box{flex:1;background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);
@@ -56,10 +64,28 @@
   .weekbar{display:flex;gap:6px;overflow-x:auto;margin:12px 0;padding-bottom:2px}
   .day{flex:1;min-width:54px;background:var(--card);border-radius:12px;padding:8px 4px;text-align:center;
     box-shadow:var(--shadow);cursor:pointer;border:2px solid transparent}
-  .day.on{border-color:var(--gold);background:var(--card2)}
+  .day.on{border-color:var(--blue);background:var(--card2)}
   .day .wd{font-size:11px;color:var(--muted)}
   .day .dm{font-size:16px;font-weight:800;margin-top:2px}
-  .day.today .dm{color:var(--gold-d)}
+  .day.today .dm{color:var(--blue-d)}
+
+  .month-nav{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 8px}
+  .month-nav button{width:38px;height:38px;border:none;border-radius:11px;background:var(--card);
+    color:var(--text);font-size:18px;box-shadow:var(--shadow);cursor:pointer}
+  .month-nav button:active{transform:scale(.94)}
+  .month-title{font-weight:800;font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .grid .wd{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;font-weight:700}
+  .cell{aspect-ratio:1/1;background:var(--card);border-radius:12px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;box-shadow:var(--shadow);cursor:pointer;
+    border:2px solid transparent;position:relative;padding:2px}
+  .cell .d{font-weight:800;font-size:15px;line-height:1}
+  .cell.today{border-color:var(--blue)}
+  .cell.has .d{color:var(--blue-d)}
+  .cell.other{opacity:.38}
+  .cell .c{font-size:10px;color:var(--muted);margin-top:3px}
+  .cell .bar{position:absolute;bottom:5px;display:flex;gap:3px}
+  .cell .bar i{width:4px;height:4px;border-radius:50%;background:var(--blue)}
 
   .tools{display:flex;gap:8px;margin:12px 0 4px}
   .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--card);border-radius:12px;
@@ -68,10 +94,10 @@
   .chips{display:flex;gap:6px;overflow-x:auto;margin:10px 0 2px;padding-bottom:2px}
   .chip{border:none;background:var(--card);color:var(--muted);font-size:12px;font-weight:700;
     padding:6px 12px;border-radius:20px;white-space:nowrap;cursor:pointer;box-shadow:var(--shadow)}
-  .chip.on{background:var(--gold);color:#fff}
+  .chip.on{background:var(--blue);color:#fff}
 
   .list{margin-top:8px;display:flex;flex-direction:column;gap:10px}
-  .empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px}
+  .empty{text-align:center;color:var(--muted);padding:36px 10px;font-size:14px}
   .task{display:flex;gap:11px;background:var(--card);border-radius:14px;padding:13px 14px;
     box-shadow:var(--shadow);align-items:flex-start;position:relative}
   .task .ck{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--muted);flex:none;margin-top:1px;
@@ -96,11 +122,11 @@
     width:min(732px,calc(100% - 28px));display:flex;gap:10px;z-index:30}
   .addbar input{flex:1;border:none;border-radius:14px;padding:15px 16px;font-size:15px;box-shadow:var(--shadow);
     background:var(--card);color:var(--text);outline:none}
-  .addbar .plus{width:52px;height:52px;border-radius:16px;border:none;background:var(--gold);color:#fff;
-    font-size:26px;box-shadow:var(--shadow);cursor:pointer;flex:none}
+  .addbar .plus{width:52px;height:52px;border-radius:16px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-d));
+    color:#fff;font-size:26px;box-shadow:var(--shadow);cursor:pointer;flex:none}
   .addbar .plus:active{transform:scale(.94)}
 
-  .modal{position:fixed;inset:0;z-index:50;background:rgba(20,16,8,.45);display:none;align-items:flex-end;
+  .modal{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.45);display:none;align-items:flex-end;
     justify-content:center;padding:0}
   .modal.show{display:flex}
   .sheet{background:var(--card);width:100%;max-width:760px;border-radius:20px 20px 0 0;padding:18px 16px
@@ -116,33 +142,32 @@
   .catpick{display:flex;flex-wrap:wrap;gap:8px}
   .catpick button{border:2px solid var(--line);background:var(--bg);border-radius:20px;padding:7px 13px;
     font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
-  .catpick button.on{border-color:var(--gold);background:var(--card2)}
+  .catpick button.on{border-color:var(--blue);background:var(--card2);color:var(--blue-d)}
   .pripick{display:flex;gap:8px}
   .pripick button{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:11px;padding:9px;
     font-weight:700;font-size:13px;color:var(--text);cursor:pointer}
-  .pripick button.on{border-color:var(--gold);background:var(--card2)}
+  .pripick button.on{border-color:var(--blue);background:var(--card2);color:var(--blue-d)}
   .btns{display:flex;gap:10px;margin-top:8px}
   .btns button{flex:1;border:none;border-radius:13px;padding:14px;font-size:15px;font-weight:800;cursor:pointer}
-  .btn-save{background:var(--gold);color:#fff}
+  .btn-save{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff}
   .btn-del{background:var(--card2);color:var(--red);flex:none;width:auto;padding:14px 18px}
   .btn-cancel{background:var(--card2);color:var(--text)}
 
   .settings .field small{color:var(--muted);font-weight:400;font-size:11px;display:block;margin-top:4px}
-  .sync{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:2px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--gray)}
-  .dot.ok{background:var(--ok)} .dot.off{background:var(--orange)} .dot.err{background:var(--red)}
+  .ol-status{font-size:13px;font-weight:600;color:var(--text);margin:4px 0 6px}
+  .switch-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-top:8px;cursor:pointer}
+  .switch-row input{width:18px;height:18px;accent-color:var(--blue)}
   .qr{width:160px;height:160px;background:#fff;border-radius:12px;margin:8px auto;display:block}
-  .toast{position:fixed;left:50%;top:56px;transform:translateX(-50%);z-index:80;background:var(--text);
+  .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:80;background:var(--text);
     color:var(--bg);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow);
     opacity:0;transition:.25s;max-width:90%;text-align:center;pointer-events:none}
   .toast.show{opacity:1}
-  .banner{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#fff;border-radius:14px;
+  .banner{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;border-radius:14px;
     padding:12px 14px;margin:12px 0;box-shadow:var(--shadow);font-size:13px;display:flex;gap:10px;align-items:center}
   .banner b{font-size:15px}
   .hint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
-  .ol-status{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
-  .switch-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-top:8px;cursor:pointer}
-  .switch-row input{width:18px;height:18px;accent-color:var(--gold)}
+  .note-box{background:var(--card2);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--text);line-height:1.7}
+  .note-box b{color:var(--blue-d)}
 </style>
 </head>
 <body>
@@ -154,15 +179,21 @@
         <h1>东叔日程</h1>
         <div class="date" id="todayLabel"></div>
       </div>
+      <button class="icon-btn hide" id="installBtn" title="安装到主屏">📲</button>
+      <button class="icon-btn" id="syncBtn" title="立即同步到日历">🔄</button>
       <button class="icon-btn" id="themeBtn" title="切换深色">🌓</button>
-      <button class="icon-btn" id="syncBtn" title="同步状态">☁️</button>
       <button class="icon-btn" id="setBtn" title="设置">⚙️</button>
     </div>
     <div class="tabs">
       <button class="tab on" data-view="today">📅 今日</button>
       <button class="tab" data-view="week">🗓️ 本周</button>
+      <button class="tab" data-view="month">📆 本月</button>
     </div>
-    <div class="sync" id="syncRow"><span class="dot" id="syncDot"></span><span id="syncText">本地模式</span></div>
+    <div class="status">
+      <div class="sync" id="syncRow"><span class="dot" id="syncDot"></span><span id="syncText">本地模式</span></div>
+      <div class="sync" id="calRow"><span class="dot" id="calDot"></span><span id="calText">未配置日历同步</span></div>
+      <button class="focus-chip" id="focusChip" style="display:none"></button>
+    </div>
   </header>
 
   <div id="bannerBox"></div>
@@ -173,8 +204,17 @@
     <div class="weekbar" id="weekBar"></div>
   </div>
 
+  <div id="monthWrap" style="display:none">
+    <div class="month-nav">
+      <button id="prevMonth" title="上个月">‹</button>
+      <div class="month-title" id="monthTitle"></div>
+      <button id="nextMonth" title="下个月">›</button>
+    </div>
+    <div class="grid" id="monthGrid"></div>
+  </div>
+
   <div class="tools">
-    <div class="search">🔍<input id="search" placeholder="搜索任务…" /></div>
+    <div class="search">🔍<input id="search" placeholder="搜索事项…" /></div>
   </div>
   <div class="chips" id="chips"></div>
 
@@ -189,14 +229,14 @@
 <!-- 编辑/新增 弹窗 -->
 <div class="modal" id="editModal">
   <div class="sheet">
-    <h3 id="editTitle">新增任务</h3>
+    <h3 id="editTitle">新增事项</h3>
     <div class="field">
       <label>事项</label>
       <input id="f_title" placeholder="要做什么？" />
     </div>
     <div class="row">
       <div class="field"><label>日期</label><input id="f_date" type="date" /></div>
-      <div class="field"><label>时间（用于提醒）</label><input id="f_time" type="time" /></div>
+      <div class="field"><label>时间（用于提醒 / 日历）</label><input id="f_time" type="time" /></div>
     </div>
     <div class="field">
       <label>分类</label>
@@ -236,7 +276,7 @@
   <div class="sheet">
     <h3>设置 · 多端同步</h3>
     <div class="field">
-      <label>同步模式</label>
+      <label>同步模式（跨设备共享数据）</label>
       <select id="s_mode">
         <option value="local">本地保存（各设备独立）</option>
         <option value="jsonbin">无服务器云同步（JSONBin，推荐）</option>
@@ -255,22 +295,10 @@
       </div>
     </div>
     <div id="cloudFields">
-      <div class="field">
-        <label>Firebase API Key</label>
-        <input id="s_apikey" placeholder="AIzaSy…" />
-      </div>
-      <div class="field">
-        <label>Auth Domain</label>
-        <input id="s_auth" placeholder="xxx.firebaseapp.com" />
-      </div>
-      <div class="field">
-        <label>Project ID</label>
-        <input id="s_pid" placeholder="xxx" />
-      </div>
-      <div class="field">
-        <label>App ID</label>
-        <input id="s_appid" placeholder="1:123:web:abc" />
-      </div>
+      <div class="field"><label>Firebase API Key</label><input id="s_apikey" placeholder="AIzaSy…" /></div>
+      <div class="field"><label>Auth Domain</label><input id="s_auth" placeholder="xxx.firebaseapp.com" /></div>
+      <div class="field"><label>Project ID</label><input id="s_pid" placeholder="xxx" /></div>
+      <div class="field"><label>App ID</label><input id="s_appid" placeholder="1:123:web:abc" /></div>
       <div class="field">
         <label>同步码（所有设备填同一个即可共享数据）</label>
         <input id="s_code" placeholder="留空自动生成" />
@@ -288,31 +316,30 @@
       </div>
     </div>
     <div class="field" id="localFields">
-      <label>本机数据 / 日历</label>
+      <label>本机数据 / 备份</label>
       <div class="btns">
-        <button class="btn-cancel" id="btnExport">⬇️ 备份</button>
+        <button class="btn-cancel" id="btnExport">⬇️ 备份 JSON</button>
         <button class="btn-cancel" id="btnImport">⬆️ 导入</button>
+        <button class="btn-cancel" id="btnIcs">📅 导出日历 .ics</button>
       </div>
-      <input id="fileInput" type="file" accept="application/json" style="display:none" />
+      <input id="fileInput" type="file" accept="application/json,.ics" style="display:none" />
     </div>
     <div class="field" id="caldavFields">
-      <label>📅 同步到 iCloud 日历（全设备可见，iCloud 中转）</label>
-      <small>任务自动写入你的 iCloud 日历：iPhone/iPad/Mac/Win 原生同步，OPPO 用 DAVx⁵ 连 iCloud CalDAV。浏览器直连 iCloud 会被跨域拦截，需部署一个免费代理（见 caldav-proxy/README.md）。<b>不填也不影响各设备系统日历互相同步。</b></small>
-      <div class="field" style="margin-top:6px">
-        <label>iCloud 代理地址（Vercel Edge，注意含 /api/caldav-proxy）</label>
-        <input id="s_cvproxy" placeholder="https://xxx.vercel.app/api/caldav-proxy" />
+      <label>📅 同步到系统日历（iCloud 中转，全设备可见）</label>
+      <div class="note-box">
+        事项自动写入你的 <b>iCloud 日历</b>：iPhone / iPad / Mac / Windows 系统日历原生同步；OPPO 等安卓用免费 <b>DAVx⁵</b> 直连 iCloud CalDAV。<br>
+        浏览器直连 iCloud 会被跨域拦截，需部署一个免费代理（见 README）。<b>不填也不影响各设备系统日历互相同步。</b>
       </div>
-      <div class="field">
-        <label>Apple ID（邮箱）</label>
-        <input id="s_cvuser" placeholder="you@icloud.com" />
+      <div class="field" style="margin-top:8px">
+        <label>代理地址（Val Town / Vercel，根地址即可）</label>
+        <input id="s_cvproxy" placeholder="https://xxx.web.val.run" />
       </div>
-      <div class="field">
-        <label>App 专用密码</label>
-        <input id="s_cvpass" type="password" placeholder="苹果账号→安全→App 专用密码" />
-      </div>
-      <label class="switch-row"><span>新建/修改任务自动写入日历</span><input type="checkbox" id="s_cvauto" /></label>
+      <div class="field"><label>Apple ID（邮箱）</label><input id="s_cvuser" placeholder="you@icloud.com" /></div>
+      <div class="field"><label>App 专用密码</label><input id="s_cvpass" type="password" placeholder="苹果账号→安全→App 专用密码" /></div>
+      <label class="switch-row"><span>新建/修改事项自动写入系统日历</span><input type="checkbox" id="s_cvauto" /></label>
       <div class="btns" style="margin-top:8px">
-        <button class="btn-save" id="btnCVTest" style="flex:1">测试连接</button>
+        <button class="btn-cancel" id="btnCVTest" style="flex:1">测试连接</button>
+        <button class="btn-save" id="btnCVSync" style="flex:1">立即全量同步</button>
       </div>
       <div id="cvStatus" class="ol-status">未配置</div>
     </div>
@@ -320,7 +347,7 @@
       <button class="btn-cancel" id="setCancel">取消</button>
       <button class="btn-save" id="setSave">保存</button>
     </div>
-    <div class="hint">部署与 Firebase 配置详见 README.md。所有配置仅存于本机浏览器。</div>
+    <div class="hint">部署与代理配置详见 README.md。所有配置仅存于本机浏览器。</div>
   </div>
 </div>
 
@@ -339,10 +366,10 @@ const catMap = Object.fromEntries(CATS.map(c=>[c.k,c]));
 const $ = s=>document.querySelector(s);
 const $$ = s=>[...document.querySelectorAll(s)];
 const uid = ()=> Math.random().toString(36).slice(2,10)+Date.now().toString(36);
-const todayStr = (d=new Date())=>{ d=new Date(d); const z=n=>String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; };
+const z=n=>String(n).padStart(2,"0");
+function todayStr(d=new Date()){ d=new Date(d); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
 const WEEK = ["日","一","二","三","四","五","六"];
-function weekDays(){ // 本周一 ~ 周日
+function weekDays(){
   const now=new Date(); const day=(now.getDay()+6)%7; const mon=new Date(now); mon.setDate(now.getDate()-day);
   return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
 }
@@ -351,11 +378,12 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 
 /* ============ 状态 ============ */
 const LS={cfg:"ds_cfg",tasks:"ds_tasks",done:"ds_done",theme:"ds_theme",lead:"ds_lead",cv:"ds_cv"};
-let state={ tasks:[], view:"today", selDay:todayStr(), search:"", filterCat:"all",
-  theme:localStorage.getItem(LS.theme)||"auto", lead:+(localStorage.getItem(LS.lead)||10), cv:{autoSync:true} };
-let fb=null; // {db,ref,setDoc,unsub}
-let jb=null, jbTimer=null; // jsonbin {key,id}
-let reminded={}; // { "date#id": true }
+let state={ tasks:[], view:"today", selDay:todayStr(), dayFocus:null, month:todayStr().slice(0,7),
+  search:"", filterCat:"all", theme:localStorage.getItem(LS.theme)||"auto", lead:+(localStorage.getItem(LS.lead)||10),
+  cv:{autoSync:true} };
+let fb=null;
+let jb=null, jbTimer=null;
+let reminded={};
 
 /* ============ 数据层 ============ */
 function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS.tasks)||"[]"); }catch{ return []; } }
@@ -369,13 +397,12 @@ async function enableCloud(cfg, code){
   try{ await enableIndexedDbPersistence(db); }catch(e){}
   const ref=doc(db,"boards",code);
   const unsub=onSnapshot(ref,snap=>{
-    if(snap.exists()){ const d=snap.data(); state.tasks=d.tasks||[]; setSync("ok","已同步 · "+new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"})); }
+    if(snap.exists()){ const d=snap.data(); state.tasks=d.tasks||[]; setSync("ok","已同步 · "+fmt()); }
     else { saveCloud(); }
     render();
   }, err=>{ setSync("err","同步失败，检查配置"); });
   fb={db,ref,setDoc,unsub};
 }
-
 async function enableJsonBin(cfg){
   jb={key:cfg.jbKey,id:cfg.jbId};
   setSync("off","连接中…");
@@ -398,7 +425,7 @@ async function pullJsonBin(){
     const r=await fetch("https://api.jsonbin.io/v3/b/"+jb.id,{headers:{"X-Master-Key":jb.key}});
     if(r.ok){ const d=await r.json(); if(d.record&&Array.isArray(d.record.tasks)){
       state.tasks=mergeTasks(d.record.tasks); saveLocal(); render(); }
-      setSync("ok","已同步 "+new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"})); }
+      setSync("ok","已同步 "+fmt()); }
   }catch(e){ setSync("off","离线，已存本地"); }
 }
 async function saveJsonBin(){
@@ -406,21 +433,20 @@ async function saveJsonBin(){
   try{
     await fetch("https://api.jsonbin.io/v3/b/"+jb.id,{method:"PUT",
       headers:{"Content-Type":"application/json","X-Master-Key":jb.key},body:JSON.stringify({tasks:state.tasks})});
-    setSync("ok","已同步");
+    setSync("ok","已同步 "+fmt());
   }catch(e){ setSync("off","离线，已存本地"); }
 }
 function mergeTasks(remote){
   const out=remote.slice();
-  state.tasks.forEach(t=>{ if(!out.find(r=>r.id===t.id)) out.push(t); }); // 保留本地独有任务
+  state.tasks.forEach(t=>{ if(!out.find(r=>r.id===t.id)) out.push(t); });
   return out;
 }
-
 function saveCloud(){ if(fb) fb.setDoc(fb.ref,{tasks:state.tasks, updatedAt:Date.now()}); }
 function saveTasks(){ if(fb) saveCloud(); else if(jb) saveJsonBin(); else saveLocal(); }
-
 function setSync(cls,txt){ $("#syncDot").className="dot "+cls; $("#syncText").textContent=txt; }
+function fmt(){ return new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}); }
 
-/* ============ 任务完成状态 ============ */
+/* ============ 完成状态 ============ */
 function isDone(t,date){
   if(t.repeat&&t.repeat!=="none") return !!(t.doneByDate&&t.doneByDate[date]);
   return !!t.done;
@@ -429,38 +455,55 @@ function setDone(t,date,v){
   if(t.repeat&&t.repeat!=="none"){ t.doneByDate=t.doneByDate||{}; t.doneByDate[date]=v; }
   else { t.done=v; t.doneAt=v?Date.now():null; }
 }
-function visibleOn(t,date){ // 某天是否显示该任务
+function visibleOn(t,date){
   if(!t.repeat||t.repeat==="none") return t.date===date;
-  const wd=(new Date(date+"T00:00:00").getDay()+6)%7; // 0=周一
+  const wd=(new Date(date+"T00:00:00").getDay()+6)%7;
   if(t.repeat==="daily") return true;
   if(t.repeat==="weekdays") return wd<5;
-  if(t.repeat==="weekly") return t.date===date; // 按起始日期的星期
+  if(t.repeat==="weekly") return t.date===date;
   return false;
+}
+
+/* ============ 视图日期 ============ */
+function viewDate(){
+  if(state.view==="today") return state.dayFocus||todayStr();
+  if(state.view==="week") return state.selDay;
+  return todayStr();
 }
 
 /* ============ 渲染 ============ */
 function render(){
   $("#todayLabel").textContent = new Date().toLocaleDateString("zh-CN",
     {year:"numeric",month:"long",day:"numeric",weekday:"long"});
-  renderStat(); renderWeek(); renderChips(); renderList(); renderBanner();
+  renderFocusChip();
+  renderStat(); renderWeek(); renderMonth(); renderChips(); renderList(); renderBanner();
+  renderCalStatus();
+}
+function renderFocusChip(){
+  const c=$("#focusChip");
+  if(state.view==="today" && state.dayFocus && state.dayFocus!==todayStr()){
+    const [y,m,d]=state.dayFocus.split("-");
+    c.textContent=`📅 正在看 ${+m}月${+d}日 ✕`; c.style.display="inline-block";
+  } else c.style.display="none";
 }
 function renderStat(){
-  const date = state.view==="today"? todayStr() : state.selDay;
+  const date = viewDate();
   const items = state.tasks.filter(t=>visibleOn(t,date) && matchFilter(t));
   const done = items.filter(t=>isDone(t,date)).length;
   const total = items.length;
   const pct = total? Math.round(done/total*100):0;
   const r=21, c=2*Math.PI*r, off=c*(1-pct/100);
+  const label = state.view==="month"?"本月完成":(state.dayFocus&&state.view==="today"?"当日完成":"今日完成");
   $("#statBox").innerHTML = `
     <div class="box">
       <svg class="ring" viewBox="0 0 50 50">
         <circle cx="25" cy="25" r="${r}" fill="none" stroke="var(--line)" stroke-width="6"/>
-        <circle cx="25" cy="25" r="${r}" fill="none" stroke="var(--gold)" stroke-width="6"
+        <circle cx="25" cy="25" r="${r}" fill="none" stroke="var(--blue)" stroke-width="6"
           stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"
           transform="rotate(-90 25 25)"/>
         <text x="25" y="29" text-anchor="middle" font-size="13" font-weight="800" fill="var(--text)">${pct}%</text>
       </svg>
-      <div><div class="n">${done}/${total}</div><div class="l">${state.view==="today"?"今日完成":"当日完成"}</div></div>
+      <div><div class="n">${done}/${total}</div><div class="l">${label}</div></div>
     </div>
     <div class="box">
       <div style="font-size:22px">📌</div>
@@ -480,6 +523,29 @@ function renderWeek(){
       <div class="wd">${cnt?cnt+"项":""}</div></div>`;
   }).join("");
 }
+function renderMonth(){
+  if(state.view!=="month"){ $("#monthWrap").style.display="none"; return; }
+  $("#monthWrap").style.display="block";
+  const [yy,mm]=state.month.split("-").map(Number);
+  $("#monthTitle").textContent = `${yy}年${mm}月`;
+  const first=new Date(yy,mm-1,1); const startW=first.getDay();
+  const daysInMonth=new Date(yy,mm,0).getDate();
+  const cells=[];
+  const base=new Date(yy,mm-1,1-startW);
+  for(let i=0;i<42;i++){
+    const d=new Date(base); d.setDate(base.getDate()+i);
+    const ds=todayStr(d); const inMonth=d.getMonth()===mm-1;
+    const cnt=state.tasks.filter(t=>visibleOn(t,ds)).length;
+    cells.push({ds,inMonth,cnt,today:ds===todayStr()});
+  }
+  const wdRow=WEEK.map(w=>`<div class="wd">${w}</div>`).join("");
+  const cellRow=cells.map(c=>{
+    const bars = c.cnt? `<div class="bar">${c.cnt>3?"<i></i><i></i><i></i>":Array.from({length:c.cnt},()=>"<i></i>").join("")}</div>`:"";
+    return `<div class="cell ${c.today?"today":""} ${c.inMonth?"":"other"} ${c.cnt?"has":""}" data-day="${c.ds}">
+      <div class="d">${+c.ds.split("-")[2]}</div>${c.cnt?`<div class="c">${c.cnt}项</div>`:""}${bars}</div>`;
+  }).join("");
+  $("#monthGrid").innerHTML = wdRow+cellRow;
+}
 function renderChips(){
   const chip=(k,name)=>`<button class="chip ${state.filterCat===k?"on":""}" data-cat="${k}">${name}</button>`;
   $("#chips").innerHTML = chip("all","全部")+CATS.map(c=>chip(c.k,c.name)).join("");
@@ -491,24 +557,27 @@ function matchFilter(t){
 }
 const PRI={high:"pri-high",mid:"pri-mid",low:"pri-low"};
 function renderList(){
-  const date = state.view==="today"? todayStr() : state.selDay;
+  const date = viewDate();
   let items = state.tasks.filter(t=>visibleOn(t,date) && matchFilter(t));
   items.sort((a,b)=>{
-    const da=isDone(a,date)?1:0, db=isDone(b,date)?1:0; if(da!==db) return da-db; // 未完成在前
+    const da=isDone(a,date)?1:0, db=isDone(b,date)?1:0; if(da!==db) return da-db;
     const pa={high:0,mid:1,low:2}[a.priority||"mid"], pb={high:0,mid:1,low:2}[b.priority||"mid"];
     if(pa!==pb) return pa-pb;
     return (a.time||"99:99").localeCompare(b.time||"99:99");
   });
   const box=$("#list");
-  if(!items.length){ box.innerHTML=`<div class="empty">${state.search||state.filterCat!=="all"?"没有匹配的任务 🔍":"这一天很轻松，加件事吧 ✨"}</div>`; return; }
+  if(!items.length){
+    const msg = (state.view==="today" && !state.dayFocus && !state.search && state.filterCat==="all")
+      ? "☕️喝杯美式，一天没事～" : "这一天很轻松，加件事吧 ✨";
+    box.innerHTML=`<div class="empty">${msg}</div>`; return;
+  }
   const now=new Date();
   box.innerHTML = items.map(t=>{
     const done=isDone(t,date);
     const c=catMap[t.category]||catMap.other;
     const due = t.time && !done;
     let late=false;
-    if(due){ const [h,m]=t.time.split(":").map(Number); const dt=new Date(date+"T"+t.time);
-      if(dt<now) late=true; }
+    if(due){ const dt=new Date(date+"T"+t.time); if(dt<now) late=true; }
     return `<div class="task ${done?"done":""} ${late?"late":""}" data-id="${t.id}">
       <div class="ck" data-act="ck">${done?"✓":""}</div>
       <div class="body">
@@ -535,10 +604,9 @@ function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">"
 function renderBanner(){
   const date=todayStr();
   const pend=state.tasks.filter(t=>visibleOn(t,date)&&!isDone(t,date));
-  const dueSoon=pend.filter(t=>t.time).sort((a,b)=>a.time.localeCompare(b.time)).slice(0,1);
   const box=$("#bannerBox");
   if(!pend.length){ box.innerHTML=""; return; }
-  const soon = dueSoon[0];
+  const soon=pend.filter(t=>t.time).sort((a,b)=>a.time.localeCompare(b.time))[0];
   const tip = soon? `下一个：${esc(soon.title)} @ ${soon.time}` : `今天还有 ${pend.length} 件事没做，加油 💪`;
   box.innerHTML=`<div class="banner"><span style="font-size:20px">🔔</span>
     <div><b>别忘事</b><br>${tip}</div></div>`;
@@ -568,7 +636,7 @@ function loadReminded(){ try{ reminded=JSON.parse(localStorage.getItem(LS.done)|
 let editing=null, pickCat="work", pickPri="mid";
 function openEdit(t){
   editing=t;
-  $("#editTitle").textContent=t?"编辑任务":"新增任务";
+  $("#editTitle").textContent=t?"编辑事项":"新增事项";
   $("#f_title").value=t?t.title:"";
   $("#f_date").value=t?t.date:todayStr();
   $("#f_time").value=t?t.time:"";
@@ -605,7 +673,6 @@ function saveEdit(){
 function delEdit(){
   if(!editing) return;
   const t=editing;
-  if(t.repeat&&t.repeat!=="none"){ t._del=true; }
   state.tasks=state.tasks.filter(x=>x!==t);
   saveTasks(); render(); closeEdit();
   syncCaldav(t,"delete");
@@ -659,26 +726,51 @@ function exportData(){
   a.download="东叔日程备份-"+todayStr()+".json"; a.click(); toast("已导出备份");
 }
 function importData(file){
-  const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result);
-    if(Array.isArray(d)){ state.tasks=d; saveTasks(); render(); toast("已导入 "+d.length+" 条"); } }
-    catch{ toast("文件格式错误"); } }; r.readAsText(file);
+  const r=new FileReader(); r.onload=()=>{ try{
+    if(file.name.endsWith(".ics")){ importICS(r.result); return; }
+    const d=JSON.parse(r.result);
+    if(Array.isArray(d)){ state.tasks=d; saveTasks(); render(); toast("已导入 "+d.length+" 条"); }
+  } catch{ toast("文件格式错误"); } }; r.readAsText(file);
+}
+function exportICS(){
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Dongshu//Schedule//CN","CALSCALE:GREGORIAN"];
+  state.tasks.forEach(t=>{ if(t.date) L.push(...taskToICS(t).split("\r\n").slice(2,-1)); });
+  L.push("END:VCALENDAR");
+  const blob=new Blob([L.join("\r\n")],{type:"text/calendar"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="东叔日程-"+todayStr()+".ics"; a.click(); toast("已导出 .ics，可导入任意系统日历");
+}
+function importICS(text){
+  const blocks=text.split(/BEGIN:VEVENT/).slice(1).map(b=>"BEGIN:VEVENT"+b.split("END:VCALENDAR")[0]+"END:VCALENDAR");
+  let n=0;
+  blocks.forEach(block=>{
+    const get=f=>{ const m=block.match(new RegExp(f+":(.+)","i")); return m?m[1].trim():""; };
+    const summary=get("SUMMARY"); if(!summary) return;
+    const dt=get("DTSTART");
+    let date="", time="";
+    if(dt.startsWith(";VALUE=DATE")||/^\d{8}$/.test(dt)){ date=(dt.match(/\d{8}/)||[""])[0].replace(/(\d{4})(\d{2})(\d{2})/,"$1-$2-$3"); }
+    else { const m=dt.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/); if(m){ date=`${m[1]}-${m[2]}-${m[3]}`; time=`${m[4]}:${m[5]}`; } }
+    state.tasks.push({id:uid(),title:summary,date:date||todayStr(),time,category:"other",priority:"mid",
+      repeat:"none",note:get("DESCRIPTION"),done:false,doneByDate:{},createdAt:Date.now()}); n++;
+  });
+  saveTasks(); render(); toast("已从 .ics 导入 "+n+" 条");
 }
 
 /* ============ 事件绑定 ============ */
 function bind(){
-  $$(".tab").forEach(t=>t.onclick=()=>{ state.view=t.dataset.view; $$(".tab").forEach(x=>x.classList.remove("on"));
-    t.classList.add("on"); render(); });
+  $$(".tab").forEach(t=>t.onclick=()=>{ state.view=t.dataset.view; state.dayFocus=null;
+    $$(".tab").forEach(x=>x.classList.remove("on")); t.classList.add("on"); render(); });
   $("#plusBtn").onclick=()=>openEdit(null);
   $("#quickAdd").addEventListener("keydown",e=>{ if(e.key==="Enter"){
     const v=e.target.value.trim(); if(!v) return;
-    const task={id:uid(),title:v,date:todayStr(),time:"",category:pickCat,priority:"mid",
+    const task={id:uid(),title:v,date:state.dayFocus||todayStr(),time:"",category:pickCat,priority:"mid",
       repeat:"none",note:"",done:false,doneByDate:{},createdAt:Date.now()};
     state.tasks.push(task);
     saveTasks(); render(); e.target.value=""; syncCaldav(task,"create"); } });
   $("#themeBtn").onclick=()=>{ const cur=document.body.classList.contains("dark");
     document.body.classList.toggle("dark",!cur);
     localStorage.setItem(LS.theme,!cur?"dark":"light"); };
-  $("#syncBtn").onclick=requestNotify;
+  $("#syncBtn").onclick=manualSync;
   $("#setBtn").onclick=openSet;
   $("#editCancel").onclick=closeEdit;
   $("#editSave").onclick=saveEdit;
@@ -688,71 +780,59 @@ function bind(){
   $("#setCancel").onclick=()=>$("#setModal").classList.remove("show");
   $("#setSave").onclick=saveSet;
   $("#btnCVTest").onclick=testCv;
+  $("#btnCVSync").onclick=()=>{ manualSync(); };
   $("#s_mode").onchange=toggleMode;
   $("#btnExport").onclick=exportData;
   $("#btnImport").onclick=()=>$("#fileInput").click();
+  $("#btnIcs").onclick=exportICS;
   $("#fileInput").onchange=e=>{ if(e.target.files[0]) importData(e.target.files[0]); };
   $("#search").addEventListener("input",e=>{ state.search=e.target.value; renderList(); });
+  $("#prevMonth").onclick=()=>{ let [y,m]=state.month.split("-").map(Number); m--; if(m<1){m=12;y--;} state.month=`${y}-${z(m)}`; renderMonth(); };
+  $("#nextMonth").onclick=()=>{ let [y,m]=state.month.split("-").map(Number); m++; if(m>12){m=1;y++;} state.month=`${y}-${z(m)}`; renderMonth(); };
+  $("#installBtn").onclick=doInstall;
+  $("#focusChip").onclick=()=>{ state.dayFocus=null; render(); };
 
-  // 列表事件委托
   $("#list").addEventListener("click",e=>{
     const task=e.target.closest(".task"); if(!task) return; const id=task.dataset.id;
     const t=state.tasks.find(x=>x.id===id); if(!t) return;
     const act=e.target.dataset.act;
-    if(act==="ck"){ const date=state.view==="today"?todayStr():state.selDay;
+    if(act==="ck"){ const date=viewDate();
       setDone(t,date,!isDone(t,date)); saveTasks(); render(); }
     else if(act==="edit") openEdit(t);
     else if(act==="del"){ state.tasks=state.tasks.filter(x=>x!==t); saveTasks(); render(); syncCaldav(t,"delete"); }
   });
   $("#weekBar").addEventListener("click",e=>{ const d=e.target.closest(".day"); if(d){
     state.selDay=d.dataset.day; render(); } });
+  $("#monthGrid").addEventListener("click",e=>{ const d=e.target.closest(".cell"); if(d){
+    state.dayFocus=d.dataset.day; state.view="today";
+    $$(".tab").forEach(x=>x.classList.toggle("on",x.dataset.view==="today")); render(); } });
   $("#chips").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(c){
     state.filterCat=c.dataset.cat; render(); } });
-  // 点击遮罩关闭
   $$(".modal").forEach(m=>m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("show"); }));
 
-  // 跨标签页本地同步
   window.addEventListener("storage",e=>{ if(e.key===LS.tasks && !fb){
     state.tasks=JSON.parse(e.newValue||"[]"); render(); } });
 
-  // 生成二维码（设置里显示同步码）
   $("#s_code").addEventListener("input",()=>{ const v=$("#s_code").value.trim();
     const cv=$("#qr"); if(v){ drawQR(cv,v); cv.style.display="block"; } else cv.style.display="none"; });
 }
 function drawQR(cv,text){
-  // 轻量 QR：用外部库不可靠，这里绘制一个"可扫的同步码卡片"占位（复制即可）
   const ctx=cv.getContext("2d"); cv.width=160; cv.height=160; ctx.fillStyle="#fff"; ctx.fillRect(0,0,160,160);
-  ctx.fillStyle="#2b2620"; ctx.font="bold 13px sans-serif"; ctx.textAlign="center";
+  ctx.fillStyle="#16233b"; ctx.font="bold 13px sans-serif"; ctx.textAlign="center";
   ctx.fillText("同步码（复制）",80,30); ctx.font="bold 11px monospace";
   const parts=text.match(/.{1,16}/g)||[text]; parts.forEach((p,i)=>ctx.fillText(p,80,60+i*18));
   ctx.font="10px sans-serif"; ctx.fillText("各设备填同一码",80,150);
 }
 
 /* ============ 启动 ============ */
-async function start(){
-  // 主题
-  if(state.theme==="dark") document.body.classList.add("dark");
-  else if(state.theme==="light") document.body.classList.remove("dark");
-  loadCaldav();
-  loadReminded();
-  const cfg=JSON.parse(localStorage.getItem(LS.cfg)||"null");
-  if(cfg&&cfg.backend==="firebase"){
-    setSync("off","连接云端中…");
-    try{ state.tasks=loadLocal(); await enableCloud(cfg,cfg.code); }
-    catch(e){ setSync("err","云端连接失败，改用本地"); state.tasks=loadLocal(); saveLocal(); }
-  } else if(cfg&&cfg.backend==="jsonbin"){
-    state.tasks=loadLocal();
-    try{ await enableJsonBin(cfg); }catch(e){ setSync("err","JSONBin 失败，本地模式"); }
-  } else {
-    state.tasks=loadLocal(); setSync("off","本地模式（设置可开同步）");
-  }
-  bind(); render();
-  if("Notification" in window && Notification.permission==="default") requestNotify();
-  setInterval(checkReminders, 15000); checkReminders();
-  // 注册 Service Worker（PWA 可安装 + 离线）
-  if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferredPrompt=e; $("#installBtn").style.display="grid"; });
+async function doInstall(){
+  if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; $("#installBtn").style.display="none"; }
+  else toast("点浏览器右上角菜单 → 安装 / 添加到主屏幕");
 }
-/* ============ iCloud CalDAV 日历同步（经 Cloudflare Worker 代理，iCloud 中转）============ */
+
+/* ============ iCloud CalDAV 日历同步（经代理，iCloud 中转）============ */
 const ICLOUD="https://caldav.icloud.com";
 function loadCaldav(){ try{ const c=JSON.parse(localStorage.getItem(LS.cv)||"null"); if(c) state.cv=Object.assign({autoSync:true},c); }catch{} }
 function saveCaldav(){ localStorage.setItem(LS.cv, JSON.stringify(state.cv)); }
@@ -765,13 +845,12 @@ function taskToICS(t){
   L.push("BEGIN:VEVENT");
   L.push("UID:"+cvUid(t));
   L.push("DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z");
-  const p=n=>String(n).padStart(2,"0");
   if(t.time){ L.push("DTSTART:"+date.replace(/-/g,"")+"T"+t.time.replace(":","")+"00");
     const end=new Date(date+"T"+t.time+":00"); end.setHours(end.getHours()+1);
-    L.push("DTEND:"+end.getFullYear()+p(end.getMonth()+1)+p(end.getDate())+"T"+p(end.getHours())+p(end.getMinutes())+"00"); }
+    L.push("DTEND:"+end.getFullYear()+z(end.getMonth()+1)+z(end.getDate())+"T"+z(end.getHours())+z(end.getMinutes())+"00"); }
   else { L.push("DTSTART;VALUE=DATE:"+date.replace(/-/g,""));
     const d=new Date(date+"T00:00:00"); d.setDate(d.getDate()+1);
-    L.push("DTEND;VALUE=DATE:"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())); }
+    L.push("DTEND;VALUE=DATE:"+d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())); }
   L.push("SUMMARY:"+escICS(t.title));
   if(t.note) L.push("DESCRIPTION:"+escICS(t.note));
   if(t.category&&catMap[t.category]) L.push("CATEGORIES:"+catMap[t.category].name);
@@ -781,11 +860,13 @@ function taskToICS(t){
 }
 function cvBasic(){ const a=btoa(unescape(encodeURIComponent(state.cv.user+":"+state.cv.pass)));
   return "Basic "+a; }
+// 浏览器统一用 POST 隧道：真实 WebDAV 方法放 X-Cal-Method，Depth 放 X-Depth（绕过边缘对 WebDAV 方法的 405 拦截）
 async function icRequest(method, path, body, extra){
   const proxy=(state.cv.proxy||"").replace(/\/+$/,"");
   const target=ICLOUD+path;
-  const headers=Object.assign({"Authorization":cvBasic(),"Content-Type":"text/calendar;charset=utf-8"}, extra||{});
-  return fetch(proxy+"?u="+encodeURIComponent(target), {method, headers, body});
+  const headers={ "X-Cal-Method":method, "Authorization":cvBasic(), "Content-Type":"text/calendar;charset=utf-8" };
+  if(extra){ for(const k in extra){ if(k==="Depth") headers["X-Depth"]=extra[k]; else headers[k]=extra[k]; } }
+  return fetch(proxy+"?u="+encodeURIComponent(target), {method:"POST", headers, body});
 }
 function normHref(h){ if(h&&h.indexOf("http")===0){ try{ return new URL(h).pathname }catch(e){ return h } } return h||""; }
 function parseResp(xml){
@@ -816,28 +897,103 @@ async function syncCaldav(task, action){
   try{
     let calHref=state.cv.calHref;
     if(!calHref) calHref=await icFindCalendar();
-    if(!calHref){ state.cv.calHref=null; saveCaldav(); return; }
+    if(!calHref){ state.cv.calHref=null; saveCaldav(); renderCalStatus(); return; }
     state.cv.calHref=calHref; saveCaldav();
     const href=calHref.replace(/\/+$/,"")+"/"+cvUid(task)+".ics";
     if(action==="delete"){ await icRequest("DELETE",href); return; }
     await icRequest("PUT",href,taskToICS(task),{"Depth":"0"});
     task.evId=cvUid(task); saveTasks();
-  }catch(e){ console.warn("iCloud 同步出错",e); }
+    state.cv.lastSync=Date.now(); state.cv.lastError=null; saveCaldav(); renderCalStatus();
+  }catch(e){ console.warn("iCloud 同步出错",e); state.cv.lastError=e.message||"error"; saveCaldav(); renderCalStatus(); }
+}
+async function syncAllToCalendar(){
+  if(!state.cv.proxy||!state.cv.user) throw new Error("未配置代理 / Apple ID");
+  let calHref=state.cv.calHref;
+  if(!calHref) calHref=await icFindCalendar();
+  if(!calHref){ state.cv.calHref=null; saveCaldav(); throw new Error("未找到可用日历"); }
+  state.cv.calHref=calHref; saveCaldav();
+  // 清理已删除事项的旧事件（尽力而为）
+  try{
+    const r=await icRequest("PROPFIND",calHref,'<propfind xmlns="DAV:"><prop><resourcetype/><getetag/></prop></propfind>',{"Depth":"1"});
+    const doc=new DOMParser().parseFromString(await r.text(),"text/xml");
+    const cur=new Set(state.tasks.filter(t=>t.date).map(cvUid));
+    doc.querySelectorAll("response").forEach(res=>{
+      const href=normHref(res.querySelector("href")&&res.querySelector("href").textContent);
+      if(href && /\.ics$/.test(href)){
+        const fn=href.split("/").pop().replace(/\.ics$/,"");
+        if(!cur.has(fn)) icRequest("DELETE",href).catch(()=>{});
+      }
+    });
+  }catch(e){ console.warn("清理旧事件失败(忽略)",e); }
+  // 推送全部
+  for(const t of state.tasks){
+    if(!t.date) continue;
+    try{ await icRequest("PUT",calHref.replace(/\/+$/,"")+"/"+cvUid(t)+".ics",taskToICS(t),{"Depth":"0"}); }
+    catch(e){ console.warn("推送失败",t.title,e); }
+  }
+  state.cv.lastSync=Date.now(); state.cv.lastError=null; saveCaldav();
+}
+async function manualSync(){
+  toast("同步中…");
+  try{
+    if(jb) await pullJsonBin();
+    if(state.cv.autoSync && state.cv.proxy && state.cv.user){
+      await syncAllToCalendar();
+      toast("✅ 已写入系统日历");
+    } else if(!state.cv.proxy||!state.cv.user){
+      toast("日历未配置：设置里填 iCloud 代理");
+    }
+    setSync("ok","已同步 "+fmt());
+    state.cv.lastSync=Date.now(); state.cv.lastError=null; saveCaldav();
+    render(); renderCalStatus();
+  }catch(e){
+    state.cv.lastError=e.message||"error"; saveCaldav(); renderCalStatus();
+    toast("同步失败："+(e.message||"未知错误"));
+  }
 }
 async function testCv(){
   if(!state.cv.proxy||!state.cv.user){ toast("请先填代理地址和 Apple ID"); return; }
   try{
     const r=await icRequest("PROPFIND","/",'<propfind xmlns="DAV:"><prop><current-user-principal/></prop></propfind>',{"Depth":"0"});
-    if(r.ok){ state.cv.ok=true; state.cv.calHref=null; saveCaldav(); renderCvStatus(); toast("✅ iCloud 连接成功"); }
+    if(r.ok||r.status===401){ state.cv.ok=true; state.cv.calHref=null; saveCaldav(); renderCvStatus(); toast("✅ iCloud 连接成功"); }
     else { state.cv.ok=false; saveCaldav(); renderCvStatus(); toast("连接失败，检查 Apple ID / App 专用密码 / 代理"); }
   }catch(e){ state.cv.ok=false; saveCaldav(); renderCvStatus(); toast("连接失败：确认代理地址可公网访问"); }
 }
 function renderCvStatus(){
   const s=$("#cvStatus"); if(!s) return;
-  if(state.cv&&state.cv.ok){ s.textContent="✅ 已连接 iCloud"; s.style.color="var(--green,#2e7d32)"; }
-  else { s.textContent=state.cv&&state.cv.proxy?"未连通":"未配置"; s.style.color=""; }
+  if(state.cv&&state.cv.ok){ s.textContent="✅ 已连接 iCloud"; s.style.color="var(--green)"; }
+  else { s.textContent=state.cv&&state.cv.proxy?"未连通，点测试连接":"未配置"; s.style.color=""; }
+}
+function renderCalStatus(){
+  const dot=$("#calDot"), txt=$("#calText");
+  if(!state.cv.proxy||!state.cv.user){ dot.className="dot"; txt.textContent="未配置日历同步（设置里开启）"; return; }
+  if(state.cv.lastError){ dot.className="dot err"; txt.textContent="同步失败，点 🔄 重试"; return; }
+  if(state.cv.lastSync){ dot.className="dot ok";
+    txt.textContent="最后同步 "+new Date(state.cv.lastSync).toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}); return; }
+  dot.className="dot off"; txt.textContent="待同步（点 🔄 写入日历）";
 }
 
+async function start(){
+  if(state.theme==="dark") document.body.classList.add("dark");
+  else if(state.theme==="light") document.body.classList.remove("dark");
+  loadCaldav();
+  loadReminded();
+  const cfg=JSON.parse(localStorage.getItem(LS.cfg)||"null");
+  if(cfg&&cfg.backend==="firebase"){
+    setSync("off","连接云端中…");
+    try{ state.tasks=loadLocal(); await enableCloud(cfg,cfg.code); }
+    catch(e){ setSync("err","云端连接失败，改用本地"); state.tasks=loadLocal(); saveLocal(); }
+  } else if(cfg&&cfg.backend==="jsonbin"){
+    state.tasks=loadLocal();
+    try{ await enableJsonBin(cfg); }catch(e){ setSync("err","JSONBin 失败，本地模式"); }
+  } else {
+    state.tasks=loadLocal(); setSync("off","本地模式（设置可开同步）");
+  }
+  bind(); render();
+  if("Notification" in window && Notification.permission==="default") requestNotify();
+  setInterval(checkReminders, 15000); checkReminders();
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+}
 start();
 </script>
 </body>
